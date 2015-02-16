@@ -17,6 +17,8 @@
 
 int  BBoxBBoxIntersect(BBox *bba, BBox *bbb ) {
 
+
+
 }
 
 // @@ TODO: test if a BBox and a plane intersect.
@@ -45,7 +47,7 @@ int BSphereIntersectBSphere(BSphere *bsa, BSphere *bsb ) {
 
 	d = c_x*c_x + c_y*c_y + c_z*c_z;
 
-	r = pow(bsa->radius+bsb->radius, 2);
+	r = pow(bsa->radius + bsb->radius, 2);
 
 	if (d <= r)
 		return IINTERSECT;
@@ -60,6 +62,19 @@ int BSphereIntersectBSphere(BSphere *bsa, BSphere *bsb ) {
 //    IINTERSECT intersect
 
 int BSpherePlaneIntersect( BSphere *bs, plane *pl ) {
+
+	float distance = PlaneDistance(pl, bs->sphereX, bs->sphereY, bs->sphereZ);
+
+	if (distance > bs->radius) {
+		int lado = WhichSidePlane(pl, bs->sphereX, bs->sphereY, bs->sphereZ);
+		if (lado < 0) {
+			return IREJECT;
+		} else {
+			return -IREJECT;
+		}
+	} else {
+		return IINTERSECT;
+	}
 
 }
 
