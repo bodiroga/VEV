@@ -17,7 +17,13 @@
 
 int  BBoxBBoxIntersect(BBox *bba, BBox *bbb ) {
 
-
+	if ((bba->xMin > bbb->xMax) || (bbb->xMin > bba->xMax))
+		return IREJECT;
+	if ((bba->yMin > bbb->yMax) || (bbb->yMin > bba->yMax))
+		return IREJECT;
+	if ((bba->zMin > bbb->zMax) || (bbb->zMin > bba->zMax))
+		return IREJECT;
+	return IINTERSECT;
 
 }
 
