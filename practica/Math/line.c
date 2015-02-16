@@ -76,6 +76,10 @@ float ParamDistance(line * theLine, float Px, float Py, float Pz) {
 
 	producto_denominador = DOT_PRODUCT(theLine->dx, theLine->dy, theLine->dz, theLine->dx, theLine->dy, theLine->dz);
 
+	if (producto_denominador < DISTANCE_EPSILON) {
+		printf("Se está haciendo una división por 0");
+		return 0.0f;
+	}
 	return producto_numerador/producto_denominador;
 
 }
