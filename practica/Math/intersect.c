@@ -124,8 +124,58 @@ int BSpherePlaneIntersect( BSphere *bs, plane *pl ) {
 
 int BSphereBBoxIntersect(BSphere *sphere, BBox *box ) {
 
+	float d = 0;
+	float e;
 
+	// Cálculo para la componente X
+	e = sphere->sphereX - box->xMin;
+	if (e < 0) {
+		if (e < -sphere->radius)
+			return IREJECT;
+		d = d + e*e;
+	} else {
+		e = sphere->sphereX - box->xMax;
+		if (e > 0) {
+			if (e > sphere->radius)
+				return IREJECT;
+			d = d + e*e;
+		}
+	}
 
+	// Cálculo para la componente Y
+	e = sphere->sphereY - box->yMin;
+	if (e < 0) {
+		if (e < -sphere->radius)
+			return IREJECT;
+		d = d + e*e;
+	} else {
+		e = sphere->sphereY - box->yMax;
+		if (e > 0) {
+			if (e > sphere->radius)
+				return IREJECT;
+			d = d + e*e;
+		}
+	}
+
+	// Cálculo para la componente Z
+	e = sphere->sphereZ - box->zMin;
+	if (e < 0) {
+		if (e < -sphere->radius)
+			return IREJECT;
+		d = d + e*e;
+	} else {
+		e = sphere->sphereZ - box->zMax;
+		if (e > 0) {
+			if (e > sphere->radius)
+				return IREJECT;
+			d = d + e*e;
+		}
+	}
+
+	if (d > pow(sphere->radius,2))
+		return IREJECT;
+
+	return IINTERSECT;
 
 }
 
