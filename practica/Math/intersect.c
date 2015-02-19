@@ -35,6 +35,39 @@ int  BBoxBBoxIntersect(BBox *bba, BBox *bbb ) {
 
 int  BBoxPlaneIntersect (BBox *theBBox, plane *thePlane) {
 
+	float vx_min, vx_max, vy_min, vy_max, vz_min, vz_max;
+
+	if (thePlane->nx >= 0) {
+		vx_min = theBBox->xMin;
+		vx_max = theBBox->xMax;
+	} else {
+		vx_min = theBBox->xMax;
+		vx_max = theBBox->xMin;
+	}
+
+	if (thePlane->ny >= 0) {
+		vy_min = theBBox->yMin;
+		vy_max = theBBox->yMax;
+	} else {
+		vy_min = theBBox->yMax;
+		vy_max = theBBox->yMin;
+	}
+
+	if (thePlane->nz >= 0) {
+		vz_min = theBBox->yMin;
+		vz_max = theBBox->yMax;
+	} else {
+		vz_min = theBBox->zMax;
+		vz_max = theBBox->zMin;
+	}
+
+	if ((DOT_PRODUCT(thePlane->nx,thePlane->ny,thePlane->nz,vx_min,vy_min,vz_min) + thePlane->d) > 0)
+		return -IREJECT;
+	if ((DOT_PRODUCT(thePlane->nx,thePlane->ny,thePlane->nz,vx_max,vy_max,vz_max) + thePlane->d) < 0)
+		return IREJECT;
+
+	return IINTERSECT;
+
 }
 
 
@@ -90,6 +123,9 @@ int BSpherePlaneIntersect( BSphere *bs, plane *pl ) {
 //    IINTERSECT intersect
 
 int BSphereBBoxIntersect(BSphere *sphere, BBox *box ) {
+
+
+
 
 }
 
