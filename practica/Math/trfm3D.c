@@ -94,6 +94,15 @@ void PrintTrfm3D( const trfm3D *thisTrfm3D ) {
 
 void Trfm3DTransformPoint( const trfm3D *thisTrfm3D, float *xTr, float *yTr, float *zTr ) {
 
+	float x = *xTr;
+	float y = *yTr;
+	float z = *zTr;
+
+	*xTr = thisTrfm3D->scl*(thisTrfm3D->r1X*x + thisTrfm3D->r2X*y + thisTrfm3D->r3X*z) + thisTrfm3D->trX;
+	*yTr = thisTrfm3D->scl*(thisTrfm3D->r1Y*x + thisTrfm3D->r2Y*y + thisTrfm3D->r3Y*z) + thisTrfm3D->trY;
+	*zTr = thisTrfm3D->scl*(thisTrfm3D->r1Z*x + thisTrfm3D->r2Z*y + thisTrfm3D->r3Z*z) + thisTrfm3D->trZ;
+
+
 }
 
 // @@ TODO. Transform a vector.
@@ -102,6 +111,14 @@ void Trfm3DTransformPoint( const trfm3D *thisTrfm3D, float *xTr, float *yTr, flo
 // Hint: Vectors don't translate
 
 void TransformVectorTrfm3D( const trfm3D *thisTrfm3D, float *xTr, float *yTr, float *zTr ) {
+
+	float x = *xTr;
+	float y = *yTr;
+	float z = *zTr;
+
+	*xTr = thisTrfm3D->scl*(thisTrfm3D->r1X*x + thisTrfm3D->r2X*y + thisTrfm3D->r3X*z);
+	*yTr = thisTrfm3D->scl*(thisTrfm3D->r1Y*x + thisTrfm3D->r2Y*y + thisTrfm3D->r3Y*z);
+	*zTr = thisTrfm3D->scl*(thisTrfm3D->r1Z*x + thisTrfm3D->r2Z*y + thisTrfm3D->r3Z*z);
 
 }
 
@@ -356,6 +373,24 @@ void SetRot_Z_Trfm3D( trfm3D *thisTrfm3D, float angle ) {
 void SetRotVecTrfm3D(trfm3D *thisTrfm, float rx, float ry, float rz,
 					 float theta ) {
 
+	thisTrfm->r1X = (float) cos((double) theta) + rx*rx*(1.0f - (float) cos((double) theta));
+	thisTrfm->r1Y = rx*ry*(1.0f - (float) cos((double) theta)) - rz*(float) sin((double) theta);
+	thisTrfm->r1Z = rx*rz*(1.0f - (float) cos((double) theta)) + ry*(float) sin((double) theta);
+	thisTrfm->r2X = ry*rx*(1.0f - (float) cos((double) theta)) + rz*(float) sin((double) theta);
+	thisTrfm->r2Y = (float) cos((double) theta) +ry*ry*(1.0f - (float) cos((double) theta));
+	thisTrfm->r2Z = ry*rz*(1.0f - (float) cos((double) theta)) - rx*(float) sin((double) theta);
+	thisTrfm->r3X = rz*rx*(1.0f - (float) cos((double) theta)) - ry*(float) sin((double) theta);
+	thisTrfm->r3Y = rz*ry*(1.0f - (float) cos((double) theta)) + rx*(float) sin((double) theta);
+	thisTrfm->r3Z = (float) cos((double) theta) + rz*rz*(1.0f - (float) cos((double) theta));
+	thisTrfm->scl = 1.0f;
+	thisTrfm->trX = 0.0f;
+	thisTrfm->trY = 0.0f;
+	thisTrfm->trZ = 0.0f;
+	thisTrfm->dX  = 0.0f;
+	thisTrfm->dY  = 0.0f;
+	thisTrfm->dZ  = 0.0f;
+	thisTrfm->dW  = 1.0f;
+
 }
 
 
@@ -387,6 +422,42 @@ void SetTransTrfm3D( trfm3D *thisTrfm3D, float tx, float ty, float tz ) {
 void SetRotAxisTrfm3D(trfm3D *thisTrfm, float vectorX, float vectorY, float vectorZ,
 					  float pointX,  float pointY,  float pointZ,
 					  float angle ) {
+
+	float rx, ry, rz, mod2;
+
+	rx = vectorX - pointX;
+	ry = vectorY - pointY;
+	rz = vectorZ - pointZ;
+
+	mod2 = rx*rx + ry*ry + rz*rz;
+
+	if (mod2 > VECTOR_EPSILON) {
+		rx = rx / (sqrt(mod2));
+		ry = ry / (sqrt(mod2));
+		rz = ry / (sqrt(mod2));
+	} else {
+		rx = 0.0f;
+		ry = 0.0f;
+		rz = 0.0f;
+	}
+
+	thisTrfm->r1X = (float) cos((double) angle) + rx*rx*(1.0f - (float) cos((double) angle));
+	thisTrfm->r1Y = rx*ry*(1.0f - (float) cos((double) angle)) - rz*(float) sin((double) angle);
+	thisTrfm->r1Z = rx*rz*(1.0f - (float) cos((double) angle)) + ry*(float) sin((double) angle);
+	thisTrfm->r2X = ry*rx*(1.0f - (float) cos((double) angle)) + rz*(float) sin((double) angle);
+	thisTrfm->r2Y = (float) cos((double) angle) +ry*ry*(1.0f - (float) cos((double) angle));
+	thisTrfm->r2Z = ry*rz*(1.0f - (float) cos((double) angle)) - rx*(float) sin((double) angle);
+	thisTrfm->r3X = rz*rx*(1.0f - (float) cos((double) angle)) - ry*(float) sin((double) angle);
+	thisTrfm->r3Y = rz*ry*(1.0f - (float) cos((double) angle)) + rx*(float) sin((double) angle);
+	thisTrfm->r3Z = (float) cos((double) angle) + rz*rz*(1.0f - (float) cos((double) angle));
+	thisTrfm->scl = 1.0f;
+	thisTrfm->trX = 0.0f;
+	thisTrfm->trY = 0.0f;
+	thisTrfm->trZ = 0.0f;
+	thisTrfm->dX  = 0.0f;
+	thisTrfm->dY  = 0.0f;
+	thisTrfm->dZ  = 0.0f;
+	thisTrfm->dW  = 1.0f;
 
 }
 
@@ -494,6 +565,8 @@ void AddRotAxisTrfm3D( trfm3D *thisTrfm3D,
 					   float pointX,  float pointY,  float pointZ,
 					   float angle) {
 	static trfm3D localT;
+	SetRotAxisTrfm3D(&localT, vectorX, vectorY, vectorZ, pointX, pointY, pointZ, angle);
+	CompositionTrfm3D(thisTrfm3D, &localT);
 }
 
 void AddTransTrfm3D( trfm3D *thisTrfm3D, float tx, float ty, float tz ) {
