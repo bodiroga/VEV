@@ -171,6 +171,13 @@ Node *CloneNode(Node *sNode) {
 
 static void nodePropagateBBRoot(Node * thisNode) {
 
+	if (thisNode->parent == NULL) {
+		NULL;
+	} else {
+		nodeUpdateBB(thisNode->parent);
+		nodePropagateBBRoot(thisNode->parent);
+	}
+
 }
 
 // @@ TODO: auxiliary function
@@ -199,6 +206,21 @@ static void nodePropagateBBRoot(Node * thisNode) {
 
 static void nodeUpdateBB (Node *thisNode) {
 
+	if (thisNode->parent == NULL) {
+		NULL;
+	} else {
+		if (thisNode->gObject != NULL) {
+			TransformBBox(thisNode->container_WC, thisNode->gObject->container, thisNode->placement_WC);
+		} else {
+			Node *siguienteChild;
+			siguienteChild = StartLoop(thisNode->nodeChilds);
+			while(siguienteChild) {
+				BoxBox(thisNode->container_WC, siguienteChild->container_WC);
+				siguienteChild = GetNext(thisNode->nodeChilds);
+			}
+		}
+	}
+
 }
 
 // @@ TODO: Update WC (world coordinates matrix) of a node and
@@ -215,6 +237,23 @@ static void nodeUpdateBB (Node *thisNode) {
 //
 
 static void UpdateWCnode( Node *thisNode) {
+
+	Node * siguienteChild;
+
+	if (thisNode->parent == NULL) {
+		thisNode->placement_WC = thisNode->placement;
+	} else {
+		thisNode->placement_WC = thisNode->parent->placement_WC;
+		CompositionTrfm3D(thisNode->placement_WC, thisNode->placement);
+	}
+
+	siguienteChild = StartLoop(thisNode->nodeChilds);
+	while(siguienteChild) {
+		UpdateWCnode(siguienteChild);
+		siguienteChild = GetNext(thisNode->nodeChilds);
+	}
+
+	nodeUpdateBB(thisNode);
 
 }
 
@@ -235,7 +274,16 @@ static void UpdateGSnode( Node *thisNode) {
 
 void NodeAttach(Node *theNode, Node *theChild) {
 
-
+	// Si el nodo es una hoja, imprimimos la advertencia
+	if (theNode->gObject != NULL) {
+		fprintf(stdout, "Cuidado, el nodo es una hoja\n");
+		return;
+	} else {
+		// Le decimos al padre que tiene un nuevo hijo
+		AddLast(theNode->nodeChilds, theChild);
+		// Le decimos al hijo quien es su padre
+		theChild->parent = theNode;
+	}
 
 }
 
@@ -246,6 +294,21 @@ void NodeAttach(Node *theNode, Node *theChild) {
 
 void NodeDetach(Node *theNode) {
 
+	Node * siguienteChild;
+
+	// Primero vamos a decirle a los hijos del nodo que su nuevo padre es el abuelo
+	// y vamos a decirle al abuelo que sus nietos pasan a ser sus hijos
+	siguienteChild = StartLoop(theNode->nodeChilds);
+	while(siguienteChild) {
+		siguienteChild->parent = theNode->parent;
+		AddLast(theNode->parent->nodeChilds, siguienteChild);
+		siguienteChild = GetNext(theNode->nodeChilds);
+	}
+
+	// Finalmente quitamos el nodo de la lista de hijos del padre
+	RemoveFromList(theNode->parent->nodeChilds, theNode);
+
+
 }
 
 // @@ TODO:
@@ -254,6 +317,15 @@ void NodeDetach(Node *theNode) {
 //
 
 void AllChildsNodeDetach(Node *theNode) {
+
+	Node * siguienteChild;
+
+	// Para cada hijo del nodo vamos a llamar a NodeDetach
+	siguienteChild = StartLoop(theNode->nodeChilds);
+	while(siguienteChild) {
+		NodeDetach(siguienteChild);
+		siguienteChild = GetNext(theNode->nodeChilds);
+	}
 
 }
 
