@@ -108,10 +108,54 @@ Node *ParentNode(Node *theNode) {
 
 static Node* NodeCloneParent(Node *sNode, Node *theParent) {
 
+	Node *clonedNode = CreateNode();
+	Node *siguienteChild;
+
+	clonedNode->nodeChilds = sNode->nodeChilds;
+	clonedNode->gObject = sNode->gObject;
+	clonedNode->theLight = sNode->theLight;
+	clonedNode->theShader = sNode->theShader;
+	clonedNode->container_WC = sNode->container_WC;
+	clonedNode->placement = sNode->placement;
+	clonedNode->placement_WC = sNode->placement_WC;
+	clonedNode->isCulled = sNode->isCulled;
+	clonedNode->drawBBox = sNode->drawBBox;
+	clonedNode->parent = theParent;
+
+	siguienteChild = StartLoop(clonedNode->nodeChilds);
+	while(siguienteChild) {
+		NodeCloneParent(siguienteChild, clonedNode);
+		siguienteChild = GetNext(clonedNode->nodeChilds);
+	}
+
+	return clonedNode;
+
 }
 
 
 Node *CloneNode(Node *sNode) {
+
+	Node *clonedNode = CreateNode();
+	Node *siguienteChild;
+
+	clonedNode->nodeChilds = sNode->nodeChilds;
+	clonedNode->gObject = sNode->gObject;
+	clonedNode->theLight = sNode->theLight;
+	clonedNode->theShader = sNode->theShader;
+	clonedNode->container_WC = sNode->container_WC;
+	clonedNode->placement = sNode->placement;
+	clonedNode->placement_WC = sNode->placement_WC;
+	clonedNode->isCulled = sNode->isCulled;
+	clonedNode->drawBBox = sNode->drawBBox;
+	clonedNode->parent = sNode->parent;
+
+	siguienteChild = StartLoop(clonedNode->nodeChilds);
+	while(siguienteChild) {
+		NodeCloneParent(siguienteChild, clonedNode);
+		siguienteChild = GetNext(clonedNode->nodeChilds);
+	}
+
+	return clonedNode;
 
 }
 
@@ -190,6 +234,8 @@ static void UpdateGSnode( Node *thisNode) {
 // Print a warning (and do nothing) if the node has an gObject.
 
 void NodeAttach(Node *theNode, Node *theChild) {
+
+
 
 }
 
