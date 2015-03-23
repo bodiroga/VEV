@@ -2,3 +2,7 @@ Páginas de la teoría que hay que programa:
 
 Página 33
 Página 40
+Página 48 para Walk&Fly (Cambia la posición (E) y el At)
+
+trfm3D.h
+SetFrustumtrfm3D(.) <---- UpdateCameraProyection

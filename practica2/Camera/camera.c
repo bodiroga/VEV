@@ -172,6 +172,10 @@ void SetCameraName(camera *thisCamera, char *cameraName) {
 
 static void UpdateCameraProjection ( camera *thisCamera ) {
 
+	thisCamera->top = thisCamera->near*tan(thisCamera->fovy/2);
+	thisCamera->bottom = -thisCamera->top;
+	thisCamera->right = thisCamera->aspectRatio * thisCamera->top;
+	thisCamera->left = -thisCamera->right;
 
 	UpdateFrustumPlanes(thisCamera);
 }
@@ -267,6 +271,32 @@ static void set_view_trfm( camera *thisCamera) {
 
 static void UpdateCameraFrame (camera *thisCamera) {
 
+	float *Fx, *Fy, *Fz;
+	float *Up_x_aux, *Up_y_aux, *Up_z_aux;
+
+	Fx = thisCamera->Ex - thisCamera->AtX;
+	Fy = thisCamera->Ey - thisCamera->AtY;
+	Fz = thisCamera->Ez - thisCamera->AtZ;
+
+	VectorNormalize(Fx, Fy, Fz);
+
+	Up_x_aux = thisCamera->UpX;
+	Up_y_aux = thisCamera->UpY;
+	Up_z_aux = thisCamera->UpZ;
+
+	VectorNormalize(Up_x_aux, Up_y_aux, Up_z_aux);
+
+	thisCamera->Rx = Up_y_aux*Fz - Up_z_aux*Fy;
+	thisCamera->Ry = Up_z_aux*Fx - Up_x_aux*Fz;
+	thisCamera->Rz = Up_x_aux*Fy - Up_y_aux*Fx;
+
+	thisCamera->Ux = Fy*thisCamera->Rz - Fz*thisCamera->Ry;
+	thisCamera->Uy = Fz*thisCamera->Rx - Fx*thisCamera->Rz;
+	thisCamera->Uz = Fx*thisCamera->Ry - Fy*thisCamera->Rx;
+
+	thisCamera->Dx = Fx;
+	thisCamera->Dy = Fy;
+	thisCamera->Dz = Fz;
 
 	set_view_trfm(thisCamera);
 }
@@ -284,6 +314,19 @@ trfm3D *ViewTrfmCamera( camera *thisCamera ) {
 
 void FlyCamera(camera *thisCamera, float step) {
 
+	trfm3D *transformacion;
+
+	float *tx = step * thisCamera->Dx;
+	float *ty = step * thisCamera->Dy;
+	float *tz = step * thisCamera->Dz;
+
+	transformacion = CreateTrfm3D();
+
+	SetTransTrfm3D(transformacion, tx, ty, tz);
+
+	TransformVectorTrfm3D(transformacion, thisCamera->Ex, thisCamera->Ey, thisCamera->Ez);
+	TransformVectorTrfm3D(transformacion, thisCamera->AtX, thisCamera->AtY, thisCamera->AtZ);
+
 	set_view_trfm(thisCamera);
 }
 
@@ -294,6 +337,20 @@ void FlyCamera(camera *thisCamera, float step) {
 // step               -> number of units to walk (can be negative)
 
 void WalkCamera(camera *thisCamera, float step) {
+
+	trfm3D *transformacion;
+
+	float *tx = step * thisCamera->Dx;
+	float *ty = 0;							// Ponemos un cero para que no se traslade en la componente y
+	float *tz = step * thisCamera->Dz;
+
+	transformacion = CreateTrfm3D();
+
+	SetTransTrfm3D(transformacion, tx, ty, tz);
+
+	TransformVectorTrfm3D(transformacion, thisCamera->Ex, thisCamera->Ey, thisCamera->Ez);
+	TransformVectorTrfm3D(transformacion, thisCamera->AtX, thisCamera->AtY, thisCamera->AtZ);
+
 
 	set_view_trfm(thisCamera);
 }
