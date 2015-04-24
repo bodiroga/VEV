@@ -250,6 +250,22 @@ void PlaceSceneLight( Light *thisLight ) {
 
 	if( ! thisLight ) return;
 
+	if ( thisLight->switched == 1 ) return;
+
+	rs = RenderStateScene();
+	modelView = TopRS(rs, AGA_MODELVIEW);
+
+	thisLight->positionEye[0] = thisLight->position[0];
+	thisLight->positionEye[1] = thisLight->position[1];
+	thisLight->positionEye[2] = thisLight->position[2];
+
+	Trfm3DTransformPoint(modelView, &thisLight->positionEye[0], &thisLight->positionEye[1], &thisLight->positionEye[2]);
+
+	// La dirección sólo se cambia en la spot
+	if (thisLight->type == AGA_SPOT)
+		TransformVectorTrfm3D(modelView, &thisLight->spotDirectionEye[0], &thisLight->spotDirectionEye[1], &thisLight->spotDirectionEye[2]);
+
+
 }
 
 void PrintLight( Light *thisLight ) {

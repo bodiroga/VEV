@@ -50,7 +50,22 @@ void direction_light(const in int i,
 					 const in vec3 viewDirection,
 					 const in vec3 normal,
 					 inout vec3 ambient, inout vec3 diffuse, inout vec3 specular) {
-
+		
+		// Ambiente		 
+		ambient += theLights[i].ambient;
+		// Difusa
+		float aportacion_diffuse = max(0.0, dot(lightDirection,normal));
+		diffuse += theLights[i].diffuse*aportacion_diffuse;
+		// Especular
+		float f1 = dot(normal,lightDirection);
+		if (f1 > 0.0) {
+			vec3 r = (2*f1*normal)-lightDirection;
+			float f2 = dot(r,viewDirection);
+			if (f2 > 0.0) {
+				float aportacion_specular = max(0.0, pow(f2,theMaterial.shininess));
+				specular += theLights[i].specular*aportacion_specular;
+			}
+		}
 }
 
 void point_light(const in int i,
@@ -58,7 +73,22 @@ void point_light(const in int i,
 				 const in vec3 viewDirection,
 				 const in vec3 normal,
 				 inout vec3 ambient, inout vec3 diffuse, inout vec3 specular) {
-
+		
+		// Ambiente	 
+		ambient = ambient + theLights[i].ambient;
+		// Difusa
+		float aportacion_diffuse = max(0.0, dot(lightDirection,normal));
+		diffuse += theLights[i].diffuse*aportacion_diffuse;
+		// Especular
+		float f1 = dot(normal,lightDirection);
+		if (f1 > 0.0) {
+			vec3 r = (2*f1*normal)-lightDirection;
+			float f2 = dot(r,viewDirection);
+			if (f2 > 0.0) {
+				float aportacion_specular = max(0.0, pow(f2,theMaterial.shininess));
+				specular += theLights[i].specular*aportacion_specular;
+			}
+		}
 }
 
 void spot_light(const in int i,
@@ -66,23 +96,61 @@ void spot_light(const in int i,
 				const in vec3 viewDirection,
 				const in vec3 normal,
 				inout vec3 ambient, inout vec3 diffuse, inout vec3 specular) {
-
+		
+		// Ambiente
+		ambient += theLights[i].ambient;
+		// Difusa
+		float aportacion_diffuse = max(0.0, dot(lightDirection,normal));
+		diffuse += theLights[i].diffuse*aportacion_diffuse;
+		// Especular
+		float f1 = dot(normal,lightDirection);
+		if (f1 > 0.0) {
+			vec3 r = (2*f1*normal)-lightDirection;
+			float f2 = dot(r,viewDirection);
+			if (f2 > 0.0) {
+				float aportacion_specular = max(0.0, pow(f2,theMaterial.shininess));
+				specular += theLights[i].specular*aportacion_specular;
+			}
+		}
 }
 
 void main() {
 
-	// for(int i=0; i < active_lights_n; ++i) {
-	// 	if(theLights[i].position.w == 0.0) {
-	// 	  // direction light
-	// 	} else {
-	// 	  if (theLights[i].cosCutOff == 0.0) {
-	// 		// point light
-	// 	  } else {
-	// 		// spot light
-	// 	  }
-	// 	}
-	// }
+	vec3 L, v, n, A, D, S;
+	vec3 pEye, nEye;
+	
+	A = vec3(0.0);
+	D = vec3(0.0, 0.0, 0.0);
+	S = vec3(0.0); 
 
-	f_color = vec4(1, 1, 1, 1);
+	// pEye: posición del vértice en el sistema de la cámara
+	// nEye: normal del vértice en el sistema de la cámara
+	pEye = (modelToCameraMatrix * vec4(v_position, 1.0)).xyz;
+	nEye = normalize((modelToCameraMatrix * vec4(v_normal, 0.0)).xyz);
+	
+	// Direccional         ->     L = -PL.xyz / ||PL.xyz||
+	// Posicional y spot   ->     L = (PL - Vp(Eye)) / ||PL - Vp(Eye)||
+
+	for(int i=0; i < active_lights_n; ++i) {
+	 	if(theLights[i].position.w == 0.0) { // direction light
+	 		L = -normalize(theLights[i].position.xyz);
+	 		v =  -pEye;
+	 	  	direction_light(i, L, v, nEye, A, D, S);
+	 	} else {
+	 	  if (theLights[i].cosCutOff == 0.0) { // point light
+	 	  		L = normalize(theLights[i].position.xyz - pEye);
+	 	  		v =  -pEye;
+	 			point_light(i, L, v, nEye, A, D, S);
+	 	  } else { // spot light
+	 	  		 L = normalize(theLights[i].position.xyz - pEye);
+	 	  		 v =  -pEye;
+	 			 spot_light(i, L, v, nEye, A, D, S);
+	 	  }
+	 	}
+	 }
+	
+	f_color = vec4(0.0, 0.0, 0.0, 1.0);
+	f_color.xyz = A * theMaterial.ambient + D * theMaterial.diffuse + S * theMaterial.specular;
+	
 	gl_Position = modelToClipMatrix * vec4(v_position, 1);
 }
