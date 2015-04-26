@@ -472,5 +472,24 @@ Node *CollisionBSphereNode(Node *thisNode, BSphere *bsph) {
 	int res = 0;
 	Node *oneNode, *aux;
 
+	if (thisNode == NULL) return NULL;
+
+	if (thisNode->nodeChilds==NULL) {
+		if (BSphereBBoxIntersect(bsph, thisNode->container_WC) == IINTERSECT)
+			return thisNode;
+		else
+			return NULL;
+	}
+
+	oneNode = StartLoop(thisNode->nodeChilds);
+
+	while(oneNode) {
+		aux = CollisionBSphereNode(oneNode, bsph);
+		if (aux != NULL) {
+			return aux;
+		}
+		oneNode = GetNext(thisNode->nodeChilds);
+	}
+
 	return NULL; /* No collision */
 }
