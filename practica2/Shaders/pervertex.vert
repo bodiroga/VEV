@@ -52,18 +52,19 @@ void direction_light(const in int i,
 					 inout vec3 ambient, inout vec3 diffuse, inout vec3 specular) {
 		
 		// Ambiente		 
-		ambient += theLights[i].ambient;
+		ambient = ambient + theLights[i].ambient;
 		// Difusa
-		float aportacion_diffuse = max(0.0, dot(lightDirection,normal));
-		diffuse += theLights[i].diffuse*aportacion_diffuse;
+		float aportacion_diffuse = dot(normal,lightDirection);
+		if (aportacion_diffuse > 0.0)
+			diffuse = diffuse + theLights[i].diffuse*aportacion_diffuse;
 		// Especular
 		float f1 = dot(normal,lightDirection);
 		if (f1 > 0.0) {
 			vec3 r = (2*f1*normal)-lightDirection;
 			float f2 = dot(r,viewDirection);
 			if (f2 > 0.0) {
-				float aportacion_specular = max(0.0, pow(f2,theMaterial.shininess));
-				specular += theLights[i].specular*aportacion_specular;
+				float aportacion_specular = pow(f2,theMaterial.shininess);
+				specular = specular + theLights[i].specular*aportacion_specular;
 			}
 		}
 }
@@ -77,16 +78,17 @@ void point_light(const in int i,
 		// Ambiente	 
 		ambient = ambient + theLights[i].ambient;
 		// Difusa
-		float aportacion_diffuse = max(0.0, dot(lightDirection,normal));
-		diffuse += theLights[i].diffuse*aportacion_diffuse;
+		float aportacion_diffuse = dot(normal,lightDirection);
+		if (aportacion_diffuse > 0.0)
+			diffuse = diffuse + theLights[i].diffuse*aportacion_diffuse;
 		// Especular
 		float f1 = dot(normal,lightDirection);
 		if (f1 > 0.0) {
 			vec3 r = (2*f1*normal)-lightDirection;
 			float f2 = dot(r,viewDirection);
 			if (f2 > 0.0) {
-				float aportacion_specular = max(0.0, pow(f2,theMaterial.shininess));
-				specular += theLights[i].specular*aportacion_specular;
+				float aportacion_specular = pow(f2,theMaterial.shininess);
+				specular = specular + theLights[i].specular*aportacion_specular;
 			}
 		}
 }
@@ -97,19 +99,26 @@ void spot_light(const in int i,
 				const in vec3 normal,
 				inout vec3 ambient, inout vec3 diffuse, inout vec3 specular) {
 		
+		float dot_spot = dot(-lightDirection,theLights[i].spotDir);
+		float cspot = 0;
+		
+		if (dot_spot > theLights[i].cosCutOff)
+			cspot = pow(max(0.0,dot_spot), theLights[i].exponent);
+			
 		// Ambiente
-		ambient += theLights[i].ambient;
+		ambient = ambient + theLights[i].ambient;
 		// Difusa
-		float aportacion_diffuse = max(0.0, dot(lightDirection,normal));
-		diffuse += theLights[i].diffuse*aportacion_diffuse;
+		float aportacion_diffuse = dot(normal,lightDirection);
+		if (aportacion_diffuse > 0.0)
+			diffuse = diffuse + theLights[i].diffuse*aportacion_diffuse*cspot;
 		// Especular
 		float f1 = dot(normal,lightDirection);
 		if (f1 > 0.0) {
 			vec3 r = (2*f1*normal)-lightDirection;
 			float f2 = dot(r,viewDirection);
 			if (f2 > 0.0) {
-				float aportacion_specular = max(0.0, pow(f2,theMaterial.shininess));
-				specular += theLights[i].specular*aportacion_specular;
+				float aportacion_specular = pow(f2,theMaterial.shininess);
+				specular = specular + theLights[i].specular*aportacion_specular*cspot;
 			}
 		}
 }
@@ -131,26 +140,36 @@ void main() {
 	// Direccional         ->     L = -PL.xyz / ||PL.xyz||
 	// Posicional y spot   ->     L = (PL - Vp(Eye)) / ||PL - Vp(Eye)||
 
+	v = -normalize(pEye);
 	for(int i=0; i < active_lights_n; ++i) {
-	 	if(theLights[i].position.w == 0.0) { // direction light
-	 		L = -normalize(theLights[i].position.xyz);
-	 		v =  -pEye;
-	 	  	direction_light(i, L, v, nEye, A, D, S);
+		// direction light
+	 	if(theLights[i].position.w == 0.0) {
+			L = -normalize(theLights[i].position.xyz);
+			direction_light(i, L, v, nEye, A, D, S);
 	 	} else {
-	 	  if (theLights[i].cosCutOff == 0.0) { // point light
-	 	  		L = normalize(theLights[i].position.xyz - pEye);
-	 	  		v =  -pEye;
+			L = normalize(theLights[i].position.xyz - pEye);
+			// point light
+			if (theLights[i].cosCutOff == 0.0) {
 	 			point_light(i, L, v, nEye, A, D, S);
-	 	  } else { // spot light
-	 	  		 L = normalize(theLights[i].position.xyz - pEye);
-	 	  		 v =  -pEye;
-	 			 spot_light(i, L, v, nEye, A, D, S);
-	 	  }
+	 		} else {
+	 			spot_light(i, L, v, nEye, A, D, S);
+	 		}
 	 	}
-	 }
+	}
 	
 	f_color = vec4(0.0, 0.0, 0.0, 1.0);
 	f_color.xyz = A * theMaterial.ambient + D * theMaterial.diffuse + S * theMaterial.specular;
 	
 	gl_Position = modelToClipMatrix * vec4(v_position, 1);
+	
+	
+	
+	// vec4 textureColor = texture2D(sampler2D , vec2)
+	// 			rgba		GLSL	textura		coord
+	//								mapa		textura
+	
+	//						f_color						texture_color
+	// ColorFinal => Color_interpolado_del_vertice*color_del_pixel_textura
+	
+	// ¡¡Esto habrá que aplicarlo sólo cuando el fragmento tengo textura!!
 }
