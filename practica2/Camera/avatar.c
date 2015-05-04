@@ -74,10 +74,8 @@ int AdvanceAvatar(Avatar *theAvatar, float step) {
 
 	if (CollisionBSphereNode(rootNode, bsph) == NULL) {
 		if (theAvatar->walk == 1) {
-			printf("Vamos a Walk\n");
 			WalkCamera(thisCamera, step);
 		} else {
-			printf("Vamos a fly\n");
 			FlyCamera(thisCamera, step);
 		}
 		return 1;
