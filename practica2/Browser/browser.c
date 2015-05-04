@@ -73,10 +73,14 @@ void InitLight() {
 
 	static float pos_dir[4] = {-1, -1, -1, 0}; //position (the final 0 means the Light is directional)
 	static float amb_dir[4] = {0.6, 0.6, 0.6, 1};  //ambient
-	static float dif_dir[4] = {0.7, 0.7, 0.7, 1};   //diffuse
+	static float dif_dir[4] = {1, 0, 0, 1};   //diffuse
 	static float spec_dir[4] = {0.6, 0.6, 0.6, 1};  //specular
 
 	static float pos_dir2[4] = {1, 1, 1, 0}; //position (the final 0 means the Light is directional)
+	static float amb_dir2[4] = {0, 1, 0, 1};  //ambient
+	static float dif_dir2[4] = {1, 0, 0, 1};   //diffuse
+	static float spec_dir2[4] = {0.6, 0.6, 0.6, 1};  //specular
+
 
 	static float pos_sp[4] = {0, 10, 0, 1}; //position (the final 1 means the Light is positional)
 	static float dir_sp[4] = {0, 0, -1}; //direction
@@ -102,9 +106,9 @@ void InitLight() {
 
 	dirLight2 = SceneRegisterLight("dirlight2");
 	SetPositionLight(dirLight2, &pos_dir2[0]);
-	SetAmbientLight(dirLight2, &amb_dir[0]);
-	SetDiffuseLight(dirLight2, &dif_dir[0]);
-	SetSpecularLight(dirLight2, &spec_dir[0]);
+	SetAmbientLight(dirLight2, &amb_dir2[0]);
+	SetDiffuseLight(dirLight2, &dif_dir2[0]);
+	SetSpecularLight(dirLight2, &spec_dir2[0]);
 	SwitchLight(dirLight2, 0);
 	dirLight2_s = 0;
 
