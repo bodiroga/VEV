@@ -259,12 +259,19 @@ void PlaceSceneLight( Light *thisLight ) {
 	thisLight->positionEye[1] = thisLight->position[1];
 	thisLight->positionEye[2] = thisLight->position[2];
 
-	Trfm3DTransformPoint(modelView, &thisLight->positionEye[0], &thisLight->positionEye[1], &thisLight->positionEye[2]);
+	if (thisLight->type == AGA_DIRECTIONAL) {
+		TransformVectorTrfm3D(modelView, &thisLight->positionEye[0], &thisLight->positionEye[1], &thisLight->positionEye[2]);
+	} else {
+		Trfm3DTransformPoint(modelView, &thisLight->positionEye[0], &thisLight->positionEye[1], &thisLight->positionEye[2]);
+	}
 
 	// La dirección sólo se cambia en la spot
-	if (thisLight->type == AGA_SPOT)
+	if (thisLight->type == AGA_SPOT) {
+		thisLight->spotDirectionEye[0] = thisLight->spotDirection[0];
+		thisLight->spotDirectionEye[1] = thisLight->spotDirection[1];
+		thisLight->spotDirectionEye[2] = thisLight->spotDirection[2];
 		TransformVectorTrfm3D(modelView, &thisLight->spotDirectionEye[0], &thisLight->spotDirectionEye[1], &thisLight->spotDirectionEye[2]);
-
+	}
 
 }
 
