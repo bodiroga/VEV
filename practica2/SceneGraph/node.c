@@ -474,7 +474,7 @@ Node *CollisionBSphereNode(Node *thisNode, BSphere *bsph) {
 
 	if (thisNode == NULL) return NULL;
 
-	if (thisNode->nodeChilds==NULL) {
+	if (thisNode->gObject) {
 		if (BSphereBBoxIntersect(bsph, thisNode->container_WC) == IINTERSECT)
 			return thisNode;
 		else

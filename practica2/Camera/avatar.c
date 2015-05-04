@@ -45,14 +45,47 @@ int AdvanceAvatar(Avatar *theAvatar, float step) {
 
 	camera *thisCamera = theAvatar->cam;
 	BSphere *bsph = theAvatar->bsph;
-	float newX, newY, newZ;
-	Node *rootNode;
+	trfm3D *transformacion;
 
+	float newX, newY, newZ;
+	float oldX, oldY, oldZ;
+	float transX, transY, transZ;
+	Node *rootNode;
 	rootNode = RootNodeScene();
 
-	// Put here your code
+	transformacion = CreateTrfm3D();
 
-	return 1;
+	oldX = thisCamera->Ex; newX = thisCamera->Ex;
+	oldY = thisCamera->Ey; newY = thisCamera->Ey;
+	oldZ = thisCamera->Ez; newZ = thisCamera->Ez;
+
+	transX = step * -thisCamera->Dx;
+	if (theAvatar->walk == 0)
+		transY = step * -thisCamera->Dy;
+	else
+		transY = 0.0;
+	transZ = step * -thisCamera->Dz;
+
+	SetTransTrfm3D(transformacion, transX, transY, transZ);
+
+	Trfm3DTransformPoint(transformacion, &newX, &newY, &newZ);
+
+	PlaceBSphere(bsph, newX, newY, newZ);
+
+	if (CollisionBSphereNode(rootNode, bsph) == NULL) {
+		if (theAvatar->walk == 1) {
+			printf("Vamos a Walk\n");
+			WalkCamera(thisCamera, step);
+		} else {
+			printf("Vamos a fly\n");
+			FlyCamera(thisCamera, step);
+		}
+		return 1;
+	} else {
+		PlaceBSphere(bsph, oldX, oldY, oldZ);
+	}
+	return 0;
+
 }
 
 void LeftRightAvatar(Avatar *theAvatar, float angle) {
