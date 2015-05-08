@@ -157,6 +157,8 @@ void main() {
 	 	}
 	}
 	
+	f_texCoord = v_texCoord;
+	
 	f_color = vec4(0.0, 0.0, 0.0, 1.0);
 	f_color.xyz = A * theMaterial.ambient + D * theMaterial.diffuse + S * theMaterial.specular;
 	
@@ -170,6 +172,4 @@ void main() {
 	
 	//						f_color						texture_color
 	// ColorFinal => Color_interpolado_del_vertice*color_del_pixel_textura
-	
-	// ¡¡Esto habrá que aplicarlo sólo cuando el fragmento tengo textura!!
 }
