@@ -17,5 +17,11 @@ varying vec2 f_texCoord;
 
 void main() {
 
-	gl_Position = modelToClipMatrix * vec4(v_position, 1.0);
+	f_positionEye = (modelToCameraMatrix * vec4(v_position, 1.0)).xyz;
+	f_viewDirection = -normalize(f_positionEye.xyz);
+	f_normal = normalize((modelToCameraMatrix * vec4(v_normal, 0.0)).xyz);
+	f_texCoord = v_texCoord;
+	
+	gl_Position = modelToClipMatrix * vec4(v_position, 1);
+
 }

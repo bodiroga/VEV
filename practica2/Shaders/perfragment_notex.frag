@@ -150,6 +150,6 @@ void main() {
 	color = vec4(0.0, 0.0, 0.0, 1.0);
 	color.xyz = A * theMaterial.ambient + D * theMaterial.diffuse + S * theMaterial.specular;
 	
-	gl_FragColor = color*texture2D(texture0 , f_texCoord);
+	gl_FragColor = color;
 
 }

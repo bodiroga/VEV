@@ -2,7 +2,7 @@
 #include "hash.h"
 #include "tools.h"
 #include "trfm3D.h"
-#include "scene.h"
+#include "scenes.h"
 #include "node.h"
 #include "gObjectManager.h"
 #include "textureManager.h"

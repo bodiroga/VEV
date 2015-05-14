@@ -141,6 +141,7 @@ static void InitShaders() {
 	RegisterShaderScene("pervertex", "Shaders/pervertex.vert", "Shaders/pervertex.frag");
 	RegisterShaderScene("pervertex_notex", "Shaders/pervertex.vert", "Shaders/dummy.frag");
 	RegisterShaderScene("perfragment", "Shaders/perfragment.vert", "Shaders/perfragment.frag");
+	RegisterShaderScene("perfragment_notex", "Shaders/perfragment.vert", "Shaders/perfragment_notex.frag");
 	RegisterShaderScene("bump", "Shaders/bump_shader.vert", "Shaders/bump_shader.frag");
 	RegisterShaderScene("sky", "Shaders/sky.vert", "Shaders/sky.frag");
 }
@@ -511,7 +512,7 @@ int main(int argc, char** argv) {
 	// Init openGL objects
 	InitGL(900, 700);
 
-	displayNode = create_scene();
+	displayNode = create_scene_fragment();
 	// Other possible scene:
 	//
 	//create_scene_city();
