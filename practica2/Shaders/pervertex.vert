@@ -126,7 +126,8 @@ void spot_light(const in int i,
 void main() {
 
 	vec3 L, v, n, A, D, S;
-	vec3 pEye, nEye;
+	vec4 pEye;
+	vec3 nEye;
 	
 	A = vec3(0.0);
 	D = vec3(0.0, 0.0, 0.0);
@@ -134,20 +135,21 @@ void main() {
 
 	// pEye: posición del vértice en el sistema de la cámara
 	// nEye: normal del vértice en el sistema de la cámara
-	pEye = (modelToCameraMatrix * vec4(v_position, 1.0)).xyz;
+	pEye = modelToCameraMatrix * vec4(v_position, 1.0);
 	nEye = normalize((modelToCameraMatrix * vec4(v_normal, 0.0)).xyz);
 	
 	// Direccional         ->     L = -PL.xyz / ||PL.xyz||
 	// Posicional y spot   ->     L = (PL - Vp(Eye)) / ||PL - Vp(Eye)||
 
-	v = -normalize(pEye);
+    /// NORMALIZE(XYZ(POSICION CAMARA (0, 0, 0) - POSICION DEL VERTICE EN EL SISTEMA DE COORDENADAS DE LA CAMARA))
+	v = normalize((vec4(0, 0, 0, 1) - pEye).xyz);
 	for(int i=0; i < active_lights_n; ++i) {
 		// direction light
 	 	if(theLights[i].position.w == 0.0) {
 			L = -normalize(theLights[i].position.xyz);
 			direction_light(i, L, v, nEye, A, D, S);
 	 	} else {
-			L = normalize(theLights[i].position.xyz - pEye);
+			L = normalize((theLights[i].position - pEye).xyz);
 			// point light
 			if (theLights[i].cosCutOff == 0.0) {
 	 			point_light(i, L, v, nEye, A, D, S);
@@ -163,13 +165,4 @@ void main() {
 	f_color.xyz = A * theMaterial.ambient + D * theMaterial.diffuse + S * theMaterial.specular;
 	
 	gl_Position = modelToClipMatrix * vec4(v_position, 1);
-	
-	
-	
-	// vec4 textureColor = texture2D(sampler2D , vec2)
-	// 			rgba		GLSL	textura		coord
-	//								mapa		textura
-	
-	//						f_color						texture_color
-	// ColorFinal => Color_interpolado_del_vertice*color_del_pixel_textura
 }

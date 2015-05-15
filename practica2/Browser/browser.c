@@ -410,7 +410,7 @@ static void SpecialKey (int key, int x, int y) {
 					  0, 0, -1,
 					  0, 1, 0);
 			break;
-		/// F1, F2, F3, F4 keys
+		/// F1, F2, F3, Fxyz4 keys
       	case GLUT_KEY_F1:
          		mainLight_s = 1 - mainLight_s;
 			SwitchLight(mainLight, mainLight_s);
@@ -455,7 +455,6 @@ void idle(void) {
 void animate(int value) {
 	// Set up the next timer tick (do this first)
 	glutTimerFunc(AGA_TIMERMSECS, animate, 0);
-
 	// Measure the elapsed time
 	int currTime = glutGet(GLUT_ELAPSED_TIME);
 	int timeSincePrevFrame = currTime - prevTime;
