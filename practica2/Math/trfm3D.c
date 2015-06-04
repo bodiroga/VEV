@@ -8,7 +8,7 @@
 /*! This static structure can only be used in "Add***" functions
   Do not use elsewhere because it can be nested within different functions
 */
-static GLfloat LOCAL_M[16];
+//static GLfloat LOCAL_M[16];
 
 void DestroyTrfm3D( trfm3D **theTrfm3D ) {
 	trfm3D  *thisTrfm3D = *theTrfm3D;
