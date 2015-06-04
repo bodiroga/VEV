@@ -459,6 +459,28 @@ void DrawNode(Node *theNode) {
 
 void UpdateCullNode(Node *theNode,
 					camera * cam) {
+
+	// Iniciamos la implementación del Frustum Culling
+
+	if (theNode == NULL)
+		return;
+
+	if (theNode->gObject) {
+		if (FrustumCull(cam, theNode->container_WC, 0) == -1)
+			theNode->isCulled = 1;
+		else
+			theNode->isCulled = 0;
+	}
+
+	Node *oneNode;
+
+	oneNode = StartLoop(theNode->nodeChilds);
+	while(oneNode) {
+		UpdateCullNode(oneNode, cam);
+		oneNode = GetNext(theNode->nodeChilds);
+	}
+
+	return;
 }
 
 // @@ TODO: Check whether a BSphere (in world coordinates) intersects with a

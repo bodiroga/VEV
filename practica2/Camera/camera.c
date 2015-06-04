@@ -465,7 +465,25 @@ void ViewYWorldCamera( camera *thisCamera, float angle ) {
 int FrustumCull(camera *thisCamera,
 				BBox *theBBox, unsigned int *planesBitM) {
 
-	return 1; // BBox is fully inside the frustum
+
+	int hay_interseccion = 0;
+	int dentro = 1;
+	int plano;
+
+	for(plano = 0; plano < 6; plano++) {
+		if (BBoxPlaneIntersect(theBBox, thisCamera->fPlanes[plano]) == IINTERSECT)
+			hay_interseccion = 1;
+		else if (BBoxPlaneIntersect(theBBox, thisCamera->fPlanes[plano]) == IREJECT)
+			dentro = 0;
+	}
+
+	if (dentro && hay_interseccion) {
+		return 0;
+	} else if (dentro && !hay_interseccion) {
+		return 1;
+	}
+
+	return -1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
